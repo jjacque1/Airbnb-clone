@@ -1,29 +1,45 @@
 import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser";                       
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 
-dotenv.config()
+dotenv.config();
 
-const app = express()
+const app = express();
 
-app.use(express.json())
-app.use(cookieParser())
+app.use(express.json());
+app.use(cookieParser());
 
 app.use(
-    cors({
-        origin: process.env.CLIENT_URL,
-        credentials: true,
-    })
-)
+  cors({
+    origin: process.env.CLIENT_URL,
+    credential: true,
+  }),
+);
 
 app.get("/health", (req, res) => {
-    res.json({status: "ok", message: "ApI is running"})
-})
+  res.json({ message: "API is running" });
+});
 
+async function startServer() {
+  try {
+    if (!process.env.MONGO_URI) {
+      throw new Error("MONGO_URI missing in .env");
+    }
 
-const PORT = process.env.PORT || 5000
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("MongoDB connected");
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`)
-})
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error("Server failed to start:", err.message);
+    process.exit(1);
+  }
+}
+
+startServer();
+
