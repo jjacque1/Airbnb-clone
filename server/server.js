@@ -3,6 +3,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import User from "./models/User.js"
 
 dotenv.config();
 
@@ -42,4 +45,3 @@ async function startServer() {
 }
 
 startServer();
-
