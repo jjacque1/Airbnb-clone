@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import User from "./models/User.js"
+import User from "./models/User.js";
 
 dotenv.config();
 
@@ -23,6 +23,22 @@ app.use(
 
 app.get("/health", (req, res) => {
   res.json({ message: "API is running" });
+});
+
+app.post("/auth/register", async (req, res) => {
+  try {
+    const { email, password, fullName } = req.body;
+
+    if (!email || !password || !fullName) {
+      return res
+        .status(400)
+        .json({ message: "email, password, fullname are required" });
+    }
+
+    return res.json({ message: "basic validation passed" });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
 });
 
 async function startServer() {
