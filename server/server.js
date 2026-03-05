@@ -35,7 +35,14 @@ app.post("/auth/register", async (req, res) => {
         .json({ message: "email, password, fullname are required" });
     }
 
-    return res.json({ message: "basic validation passed" });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const exitingUser = await User.findOne({ email: normalizedEmail });
+    if (exitingUser) {
+      return res.status(409).json({ message: "Email already in use" });
+    }
+
+    return res.json({ message: "email available" });
   } catch (err) {
     return res.status(500).json({ message: "Server error" });
   }
