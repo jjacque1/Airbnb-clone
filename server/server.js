@@ -17,8 +17,8 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
-    credential: true,
-  }),
+    credentials: true,
+  })
 );
 
 app.get("/health", (req, res) => {
@@ -37,12 +37,46 @@ app.post("/auth/register", async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    const exitingUser = await User.findOne({ email: normalizedEmail });
-    if (exitingUser) {
+    const existingUser = await User.findOne({ email: normalizedEmail });
+    if (existingUser) {
       return res.status(409).json({ message: "Email already in use" });
     }
 
-    return res.json({ message: "email available" });
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    const user = await User.create({
+      email: normalizedEmail,
+      passwordHash,
+      fullName: fullName.trim(),
+    });
+
+    if(!process.env.JWt_SECRET){
+      return res.status(500).json({message: "JWT_SECRET missing in .env"})
+    }
+
+    const token = jwt.sign(
+      { userID: user._id },
+      process.env.JWt_SECRET,
+      { expiresIn: "24H"}
+    )
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false, //set true in production (HTTPS)
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7days
+      
+    })
+
+    return res.status(201).json({
+      message: "user created",
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+      },
+    });
   } catch (err) {
     return res.status(500).json({ message: "Server error" });
   }
