@@ -108,7 +108,7 @@ app.post("/auth/login", async (req, res) => {
         .json({ message: "JWT_SECRET is missing from .env" });
     }
 
-    const token = jwt.sign({ userId: User._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
