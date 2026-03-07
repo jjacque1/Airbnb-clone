@@ -18,7 +18,7 @@ app.use(
   cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
-  })
+  }),
 );
 
 app.get("/health", (req, res) => {
@@ -51,26 +51,76 @@ app.post("/auth/register", async (req, res) => {
       fullName: fullName.trim(),
     });
 
-    if(!process.env.JWt_SECRET){
-      return res.status(500).json({message: "JWT_SECRET missing in .env"})
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: "JWT_SECRET missing in .env" });
     }
 
-    const token = jwt.sign(
-      { userID: user._id },
-      process.env.JWt_SECRET,
-      { expiresIn: "24H"}
-    )
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
     res.cookie("token", token, {
       httpOnly: true,
       sameSite: "lax",
       secure: false, //set true in production (HTTPS)
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7days
-      
-    })
+    });
 
     return res.status(201).json({
       message: "user created",
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "email and password are required" });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const isPasswordMatched = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordMatched) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res
+        .status(500)
+        .json({ message: "JWT_SECRET is missing from .env" });
+    }
+
+    const token = jwt.sign({ userId: User._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      message: "Login successful",
       user: {
         id: user._id,
         email: user.email,
