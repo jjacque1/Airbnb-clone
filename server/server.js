@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "./models/User.js";
+import Place from "./models/Place.js";
 
 dotenv.config();
 
@@ -169,10 +170,66 @@ app.post("/auth/logout", (req, res) => {
     httpOnly: true,
     sameSite: "lax",
     secure: false,
-  })
+  });
 
-  return res.status(200).json({message: "Logout successful"})
-})
+  return res.status(200).json({ message: "Logout successful" });
+});
+
+app.post("/places", async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res
+        .status(500)
+        .json({ message: "JWT_SECRET is missing from .env" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const {
+      title,
+      address,
+      photos,
+      description,
+      perks,
+      extraInfo,
+      checkIn,
+      checkOut,
+      maxGuests,
+      price,
+    } = req.body;
+
+    if (
+      !title ||
+      !address ||
+      !description ||
+      checkIn === undefined ||
+      checkOut === undefined ||
+      maxGuests === undefined ||
+      price === undefined
+    ) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "title, address, description, checkIn, checkOut, maxGuests, and price are required",
+        });
+
+    }
+
+    
+
+
+    
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expored token" });
+  }
+});
 
 async function startServer() {
   try {
