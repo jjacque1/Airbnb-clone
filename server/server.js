@@ -164,6 +164,16 @@ app.get("/auth/profile", async (req, res) => {
   }
 });
 
+app.post("/auth/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+  })
+
+  return res.status(200).json({message: "Logout successful"})
+})
+
 async function startServer() {
   try {
     if (!process.env.MONGO_URI) {
