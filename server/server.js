@@ -132,6 +132,38 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
+app.get("/auth/profile", async (req, res) => {
+  try {
+    const { token } = req.cookies;
+
+    if (!token) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: "JWT_SECRET missing in .env" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+      },
+    });
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+});
+
 async function startServer() {
   try {
     if (!process.env.MONGO_URI) {
