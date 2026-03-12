@@ -177,7 +177,7 @@ app.post("/auth/logout", (req, res) => {
 
 app.post("/places", async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token } = req.cookies;
 
     if (!token) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -213,21 +213,33 @@ app.post("/places", async (req, res) => {
       maxGuests === undefined ||
       price === undefined
     ) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "title, address, description, checkIn, checkOut, maxGuests, and price are required",
-        });
-
+      return res.status(400).json({
+        message:
+          "title, address, description, checkIn, checkOut, maxGuests, and price are required",
+      });
     }
 
-    
+    const newPlace = await Place.create({
+      owner: decoded.userId,
+      title: title.trim(),
+      address: address.trim(),
+      photos: Array.isArray(photos) ? photos : [],
+      description: description.trim(),
+      perks: Array.isArray(perks) ? perks : [],
+      extraInfo: extraInfo ? extraInfo.trim() : "",
+      checkIn,
+      checkOut,
+      maxGuests,
+      price,
+    });
 
-
-    
+    return res.status(201).json({
+      message: "Place created successfully",
+      place: newPlace,
+    });
   } catch (err) {
-    return res.status(401).json({ message: "Invalid or expored token" });
+    console.error("Database Error:", err)
+    return res.status(500).json({ message: "Error saving the place" });
   }
 });
 
@@ -240,7 +252,7 @@ async function startServer() {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("MongoDB connected");
 
-    const PORT = process.env.PORT || 5000;
+    const PORT = process.env.PORT || 5001;
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
