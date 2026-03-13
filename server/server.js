@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "./models/User.js";
 import Place from "./models/Place.js";
+import connectMongoDB from "./config/db.js";
 
 dotenv.config();
 
@@ -288,12 +289,7 @@ app.get("/places/:id", async (req, res) => {
 
 async function startServer() {
   try {
-    if (!process.env.MONGO_URI) {
-      throw new Error("MONGO_URI missing in .env");
-    }
-
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB connected");
+    await connectMongoDB();
 
     const PORT = process.env.PORT || 5001;
     app.listen(PORT, () => {
