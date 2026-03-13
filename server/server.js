@@ -238,10 +238,53 @@ app.post("/places", async (req, res) => {
       place: newPlace,
     });
   } catch (err) {
-    console.error("Database Error:", err)
+    console.error("Database Error:", err);
     return res.status(500).json({ message: "Error saving the place" });
   }
 });
+
+app.get("/user-places", async (req, res) => {
+  try {
+    const { token } = req.cookies;
+
+    if (!token) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res
+        .status(500)
+        .json({ message: "JWT_SECRET is missing from .env" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const places = await Place.find({ owner: decoded.userId });
+
+    return res.status(200).json({ places });
+  } catch (err) {
+    console.error(err);
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+});
+
+app.get("/places/:id", async (req, res) => {
+  try{
+    const { id } = req.params
+
+    const place = await Place.findById(id)
+
+    if(!place){
+      return res.status(404).json({message: "Place not found"})
+    }
+
+    return res.status(200).json({ place })
+
+
+  } catch(err){
+    return res.status(500).json({message: "Error fetching place"})
+  }
+})
 
 async function startServer() {
   try {
