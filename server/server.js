@@ -2,12 +2,12 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "./models/User.js";
 import Place from "./models/Place.js";
 import connectMongoDB from "./config/db.js";
+import signToken from "./utils/jwt.js";
 
 dotenv.config();
 
@@ -53,13 +53,7 @@ app.post("/auth/register", async (req, res) => {
       fullName: fullName.trim(),
     });
 
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ message: "JWT_SECRET missing in .env" });
-    }
-
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+   const token = signToken(user._id)
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -104,15 +98,7 @@ app.post("/auth/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    if (!process.env.JWT_SECRET) {
-      return res
-        .status(500)
-        .json({ message: "JWT_SECRET is missing from .env" });
-    }
-
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = signToken(user._id)
 
     res.cookie("token", token, {
       httpOnly: true,
