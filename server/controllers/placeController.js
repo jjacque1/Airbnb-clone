@@ -1,21 +1,8 @@
 import Place from "../models/Place.js";
-import jwt from "jsonwebtoken";
 
 export async function createPlace(req, res) {
   try {
-    const { token } = req.cookies;
-
-    if (!token) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-
-    if (!process.env.JWT_SECRET) {
-      return res
-        .status(500)
-        .json({ messsage: "JWT_SECRET is missing from .env" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { userId } = req.user;
 
     const {
       title,
@@ -46,7 +33,7 @@ export async function createPlace(req, res) {
     }
 
     const newPlace = await Place.create({
-      owner: decoded.userId,
+      owner: userId,
       title: title.trim(),
       address: address.trim(),
       photos: Array.isArray(photos) ? photos : [],
@@ -72,32 +59,19 @@ export async function createPlace(req, res) {
 }
 
 export async function getUserPlaces(req, res) {
-    try {
-    const { token } = req.cookies;
+  try {
+    const { userId } = req.user;
 
-    if (!token) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-
-    if (!process.env.JWT_SECRET) {
-      return res
-        .status(500)
-        .json({ message: "JWT_SECRET is missing from .env" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const places = await Place.find({ owner: decoded.userId });
+    const places = await Place.find({ owner: userId });
 
     return res.status(200).json({ places });
   } catch (err) {
-    console.error(err);
-    return res.status(401).json({ message: "Invalid or expired token" });
+    return res.status(500).json({ message: "Invalid or expired token" });
   }
 }
 
 export async function getPlaceById(req, res) {
-    try {
+  try {
     const { id } = req.params;
 
     const place = await Place.findById(id);

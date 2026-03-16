@@ -4,11 +4,12 @@ import {
   getUserPlaces,
   getPlaceById,
 } from "../controllers/placeController.js";
+import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = express.Router();
 
-router.post("/", createPlace);
-router.get("/user-places", getUserPlaces);
-router.get("/places/:id", getPlaceById);
+router.post("/", requireAuth, createPlace);
+router.get("/user-places", requireAuth, getUserPlaces);
+router.get("/:id", getPlaceById);
 
 export default router;
