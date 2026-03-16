@@ -88,7 +88,7 @@ export async function loginUser(req, res) {
 
     return res.status(200).json({ message: "Login successful" });
   } catch (err) {
-    console.error("Deatiled login error:", err)
+    console.error("Deatiled login error:", err);
     return res.status(500).json({ message: "Server error" });
   }
 }
