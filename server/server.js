@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import Place from "./models/Place.js";
 import connectMongoDB from "./config/db.js";
-import authRoutes from "./routes/authRoutes.js"
+import authRoutes from "./routes/authRoutes.js" 
 dotenv.config();
 
 const app = express();
