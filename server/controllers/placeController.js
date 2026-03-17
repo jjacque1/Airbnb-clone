@@ -85,3 +85,67 @@ export async function getPlaceById(req, res) {
     return res.status(500).json({ message: "Error fetching place" });
   }
 }
+
+export async function updatePlace(req, res) {
+  try {
+    const { id } = req.params;
+
+    const { userId } = req.user;
+
+    const {
+      title,
+      address,
+      photos,
+      description,
+      perks,
+      extraInfo,
+      checkIn,
+      checkOut,
+      maxGuests,
+      price,
+    } = req.body;
+
+    const place = await Place.findById(id);
+    if (!place) {
+      return res.status(404).json({ message: "Place not found" });
+    }
+
+    if (place.owner.toString() !== userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    if (
+      !title ||
+      !address ||
+      !description ||
+      checkIn === undefined ||
+      checkOut === undefined ||
+      maxGuests === undefined ||
+      price === undefined
+    ) {
+      return res.status(400).json({
+        message:
+          "title, address, description, checkIn, checkOut, maxGuests, and price are required",
+      });
+    }
+
+    place.title = title.trim();
+    place.address = address.trim();
+    place.photos = Array.isArray(photos) ? photos : [];
+    place.description = description.trim();
+    place.perks = Array.isArray(perks) ? perks : [];
+    place.extraInfo = extraInfo ? extraInfo.trim() : "";
+    place.checkIn = checkIn;
+    place.checkOut = checkOut;
+    place.maxGuests = maxGuests;
+    place.price = price;
+
+    await place.save();
+
+    return res
+      .status(200)
+      .json({ message: "Place updated successfully", place });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
+}
