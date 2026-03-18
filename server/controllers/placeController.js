@@ -163,14 +163,92 @@ export async function deletePlace(req, res) {
     }
 
     if (place.owner.toString() !== userId) {
-      return res.status(403).json({ message: "Not authorized" });
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
     await place.deleteOne();
 
     return res.status(200).json({ message: "Place deleted successfully" });
   } catch (err) {
-    console.error(err)
+    console.error(err);
     return res.status(500).json({ message: "Server error" });
+  }
+}
+
+export async function patchPlace(req, res) {
+  try {
+    const { id } = req.params;
+
+    const { userId } = req.user;
+
+    const {
+      title,
+      address,
+      description,
+      photos,
+      perks,
+      extraInfo,
+      checkIn,
+      checkOut,
+      maxGuests,
+      price,
+    } = req.body;
+
+    const place = await Place.findById(id);
+
+    if (!place) {
+      return res.status(404).json({ message: "Place not found" });
+    }
+
+    if (place.owner.toString() !== userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    if (title !== undefined) {
+      place.title = title.trim();
+    }
+    if (address !== undefined) {
+      place.address = address.trim();
+    }
+
+    if (photos !== undefined) {
+      place.photos = Array.isArray(photos) ? photos : [];
+    }
+
+    if (description !== undefined) {
+      place.description = description.trim();
+    }
+
+    if (perks !== undefined) {
+      place.perks = Array.isArray(perks) ? perks : [];
+    }
+
+    if (extraInfo !== undefined) {
+      place.extraInfo = extraInfo ? extraInfo.trim() : "";
+    }
+
+    if (checkIn !== undefined) {
+      place.checkIn = checkIn;
+    }
+
+    if (checkOut !== undefined) {
+      place.checkOut = checkOut;
+    }
+
+    if (maxGuests !== undefined) {
+      place.maxGuests = maxGuests;
+    }
+
+    if (price !== undefined) {
+      place.price = price;
+    }
+
+    await place.save();
+
+    return res
+      .status(200)
+      .json({ message: "Place patched successfully", place });
+  } catch (err) {
+    return res.status(500).json({ message: "Server errror" });
   }
 }

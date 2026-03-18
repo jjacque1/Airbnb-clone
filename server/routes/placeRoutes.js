@@ -5,6 +5,7 @@ import {
   getPlaceById,
   updatePlace,
   deletePlace,
+  patchPlace,
 } from "../controllers/placeController.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 
@@ -14,6 +15,7 @@ router.post("/", requireAuth, createPlace);
 router.get("/user-places", requireAuth, getUserPlaces);
 router.get("/:id", getPlaceById);
 router.put("/:id", requireAuth, updatePlace);
+router.patch("/:id", requireAuth, patchPlace);
 router.delete("/:id", requireAuth, deletePlace);
 
 export default router;
