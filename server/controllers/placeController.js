@@ -86,6 +86,16 @@ export async function getPlaceById(req, res) {
   }
 }
 
+export async function getAllPlaces(req, res) {
+  try {
+    const places = await Place.find();
+
+    return res.status(200).json({ places });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
 export async function updatePlace(req, res) {
   try {
     const { id } = req.params;
