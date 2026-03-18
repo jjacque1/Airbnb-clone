@@ -149,3 +149,28 @@ export async function updatePlace(req, res) {
     return res.status(500).json({ message: "Server error" });
   }
 }
+
+export async function deletePlace(req, res) {
+  try {
+    const { id } = req.params;
+
+    const { userId } = req.user;
+
+    const place = await Place.findById(id);
+
+    if (!place) {
+      return res.status(404).json({ message: "Place not found" });
+    }
+
+    if (place.owner.toString() !== userId) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    await place.deleteOne();
+
+    return res.status(200).json({ message: "Place deleted successfully" });
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ message: "Server error" });
+  }
+}
