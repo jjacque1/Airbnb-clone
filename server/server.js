@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import connectMongoDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import placeRoutes from "./routes/placeRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -21,6 +22,7 @@ app.use(
 
 app.use("/auth", authRoutes);
 app.use("/places", placeRoutes);
+app.use("/bookings", bookingRoutes)
 
 app.get("/health", (req, res) => {
   res.json({ message: "API is running" });
