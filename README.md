@@ -1,47 +1,3 @@
-## PLANNING Core flows
-
-Auth: email/password (bcrypt) + JWT (httpOnly cookie)
-
-Listings: host can create/update/delete listings (photos, amenities, pricing, address)
-
-Search: location + dates + guests + price/filters
-
-Booking: availability checks, booking creation/cancel
-
-Reviews: only guests who completed stays can review
-
-Host dashboard: manage listings + reservations
-
-User profile: trips, wishlists
-
-## Production concerns
-
-Input validation, error handling, rate limiting
-
-CORS + cookies setup correctly
-
-Secure headers, env vars, logging
-
-Image uploads (cloud storage)
-
-Deployment: client + API + MongoDB Atlas
-
-## Tech choices (simple but real)
-
-Backend: Node + Express + MongoDB + Mongoose
-
-Auth: JWT in httpOnly cookies
-
-Images: Cloudinary (or S3 later)
-
-Client: React + Vite + React Router
-
-State: Context (Auth + Search), and plain props where possible
-
-Dates: date-fns
-
-Maps: Mapbox (later, after basic listings work)
-
 # Airbnb Clone (MERN)
 
 A production-style Airbnb clone built with the MERN stack to practice full-stack architecture, authentication, and scalable API design.
@@ -52,24 +8,28 @@ The goal of this project is to replicate the **core backend architecture of Airb
 
 # Tech Stack
 
-Backend
+## Backend
+
 - Node.js
 - Express.js
 - MongoDB
 - Mongoose
 
-Authentication
+## Authentication
+
 - JWT (JSON Web Tokens)
 - httpOnly cookies
 - bcrypt password hashing
 
-Frontend (planned)
+## Frontend (Planned)
+
 - React
 - Vite
 - React Router
 - Context API
 
-Other planned tools
+## Other Planned Tools
+
 - date-fns
 - Cloudinary (image storage)
 - Mapbox (maps)
@@ -78,159 +38,199 @@ Other planned tools
 
 # Current Backend Features
 
-### Authentication
+## Authentication
+
 Secure user authentication using JWT stored in httpOnly cookies.
 
-Routes implemented:
+### Routes
 
-POST /auth/register
-POST /auth/login
-GET /auth/profile
-POST /auth/logout
+- POST /auth/register
+- POST /auth/login
+- GET /auth/profile
+- POST /auth/logout
 
+### Security Features
 
-Security features:
 - bcrypt password hashing
 - JWT token signing
 - httpOnly cookie storage
-- token verification middleware pattern
+- authentication middleware (`requireAuth`)
 
 ---
 
-### Listings (Places)
+## Listings (Places)
 
 Hosts can create and manage listings.
 
-Implemented routes:
+### Routes
 
+- POST /places → create a listing
+- GET /places → fetch all listings
+- GET /places/:id → fetch a single listing
+- GET /user-places → fetch listings owned by logged-in user
+- PUT /places/:id → update full listing
+- PATCH /places/:id → partial update
+- DELETE /places/:id → delete listing
 
-Security features:
-- bcrypt password hashing
-- JWT token signing
-- httpOnly cookie storage
-- token verification middleware pattern
+### Listing Fields
+
+- title
+- address
+- photos []
+- description
+- perks []
+- extraInfo
+- checkIn
+- checkOut
+- maxGuests
+- price
+- owner (ObjectId → User)
 
 ---
 
-### Listings (Places)
+## Bookings
 
-Hosts can create and manage listings.
+Users can book listings with full validation and availability checks.
 
-Implemented routes:
+### Routes
 
-POST /places → create a listing
-GET /user-places → get listings owned by logged in user
-GET /places/:id → fetch a single listing
+- POST /bookings → create booking
+- GET /bookings → get current user's bookings
+- GET /bookings/:id → get single booking
+- PATCH /bookings/:id/cancel → cancel booking
 
+### Booking Features
 
-Each listing stores:
+- Prevent booking your own listing
+- Date validation (checkOut > checkIn)
+- Overlapping booking prevention
+- Availability based on active bookings only
+- Booking cancellation (status-based, not deletion)
 
-title
-address
-photos
-description
-perks
-extraInfo
-checkIn
-checkOut
-maxGuests
-price
-owner (user reference)
+### Booking Fields
 
-
-Listings are linked to users via:
-
-owner: ObjectId → ref "User"
-
+- place (ObjectId → Place)
+- user (ObjectId → User)
+- checkIn
+- checkOut
+- numberOfGuests
+- name
+- phone
+- price
+- status ("active" | "cancelled")
 
 ---
 
 # Database Models
 
-### User
+## User
 
+- email
+- passwordHash
+- fullName
 
----
+## Place
 
-# Database Models
+- owner (ObjectId → User)
+- title
+- address
+- photos []
+- description
+- perks []
+- extraInfo
+- checkIn
+- checkOut
+- maxGuests
+- price
 
-### User
+## Booking
 
-email
-passwordHash
-fullName
-
-
-### Place
-
-owner (ObjectId → User)
-title
-address
-photos []
-description
-perks []
-extraInfo
-checkIn
-checkOut
-maxGuests
-price
-
+- place (ObjectId → Place)
+- user (ObjectId → User)
+- checkIn
+- checkOut
+- numberOfGuests
+- name
+- phone
+- price
+- status
 
 ---
 
 # Core Flows
 
-Auth  
-- email/password login  
-- bcrypt hashing  
-- JWT cookie session
+## Authentication
 
-Listings  
-- hosts create listings  
-- listings tied to owner id
+- Email/password login
+- Password hashing with bcrypt
+- JWT stored in httpOnly cookies
 
-User dashboard  
-- fetch listings created by logged in user
+## Listings
+
+- Hosts create and manage listings
+- Listings linked to owner
+
+## Booking System
+
+- Users book listings
+- Availability is enforced via date overlap checks
+- Cancelled bookings do not block availability
+
+## User Dashboard
+
+- Users can view their listings
+- Users can view their bookings
 
 ---
 
 # API Structure
 
-Auth
-POST /auth/register
-POST /auth/login
-GET /auth/profile
-POST /auth/logout
+## Auth
 
-Places
-POST /places
-GET /user-places
-GET /places/:id
+- POST /auth/register
+- POST /auth/login
+- GET /auth/profile
+- POST /auth/logout
 
+## Places
+
+- POST /places
+- GET /places
+- GET /places/:id
+- GET /user-places
+- PUT /places/:id
+- PATCH /places/:id
+- DELETE /places/:id
+
+## Bookings
+
+- POST /bookings
+- GET /bookings
+- GET /bookings/:id
+- PATCH /bookings/:id/cancel
 
 ---
 
 # Planned Features
 
-Search
-- location
-- guests
+## Search
+
+- location filtering
+- guest count
 - price filters
 - date availability
 
-Bookings
-- create reservation
-- cancel reservation
-- availability checks
+## Reviews
 
-Reviews
-- guests can review completed stays
+- only completed stays can review
 
-Host dashboard
+## Host Dashboard
+
 - manage listings
 - manage bookings
 
-User profile
+## User Profile
+
 - trips
 - wishlists
 
@@ -238,19 +238,30 @@ User profile
 
 # Production Concerns
 
-Input validation  
-Error handling  
-Rate limiting  
-CORS + cookies configuration  
-Secure headers  
-Environment variables  
-Logging
+- Input validation
+- Error handling
+- Rate limiting
+- CORS + cookies configuration
+- Secure headers
+- Environment variables
+- Logging
 
-Image uploads (Cloudinary)  
-Deployment (Render / Vercel / MongoDB Atlas)
+## Infrastructure
+
+- Image uploads (Cloudinary)
+- Deployment (Render / Vercel / MongoDB Atlas)
 
 ---
 
 # Project Goal
 
 This project is designed to practice building a **production-style REST API** using the MERN stack with proper authentication, relational data modeling, and scalable backend architecture.
+
+---
+
+# Status
+
+Backend complete (Auth, Places, Bookings)
+Frontend in progress
+
+---
