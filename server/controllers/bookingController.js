@@ -24,6 +24,10 @@ export async function createBooking(req, res) {
       });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(place)) {
+      return res.status(400).json({ message: "Invalid place id" });
+    }
+
     const foundPlace = await Place.findById(place);
 
     if (!foundPlace) {
@@ -75,9 +79,11 @@ export async function createBooking(req, res) {
       price,
     });
 
+    const populatedBooking = await newBooking.populate("place")
+
     return res.status(201).json({
       message: "Booking created successfully",
-      booking: newBooking,
+      booking: populatedBooking,
     });
   } catch (err) {
     return res.status(500).json({ message: "Server error" });
