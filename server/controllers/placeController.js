@@ -1,4 +1,5 @@
 import Place from "../models/Place.js";
+import mongoose from "mongoose";
 
 export async function createPlace(req, res) {
   try {
@@ -74,6 +75,10 @@ export async function getPlaceById(req, res) {
   try {
     const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid place id" });
+    }
+
     const place = await Place.findById(id);
 
     if (!place) {
@@ -114,6 +119,10 @@ export async function updatePlace(req, res) {
       maxGuests,
       price,
     } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid place id" });
+    }
 
     const place = await Place.findById(id);
     if (!place) {
@@ -166,6 +175,10 @@ export async function deletePlace(req, res) {
 
     const { userId } = req.user;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid place id" });
+    }
+
     const place = await Place.findById(id);
 
     if (!place) {
@@ -203,6 +216,10 @@ export async function patchPlace(req, res) {
       maxGuests,
       price,
     } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid place id" });
+    }
 
     const place = await Place.findById(id);
 
