@@ -53,6 +53,7 @@ export async function createBooking(req, res) {
 
     const existingBooking = await Booking.findOne({
       place,
+      status: "active",
       checkIn: { $lt: checkOutDate },
       checkOut: { $gt: checkInDate },
     });
@@ -75,7 +76,7 @@ export async function createBooking(req, res) {
     });
 
     return res.status(201).json({
-      message: "Booking created successsfully",
+      message: "Booking created successfully",
       booking: newBooking,
     });
   } catch (err) {
@@ -98,8 +99,11 @@ export async function getBookings(req, res) {
 export async function getBookingById(req, res) {
   try {
     const { id } = req.params;
-
     const { userId } = req.user;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid booking id" });
+    }
 
     const booking = await Booking.findById(id).populate("place");
 
@@ -113,11 +117,11 @@ export async function getBookingById(req, res) {
 
     return res.json(booking);
   } catch (err) {
-    return res.status(500).json({ message: "Failed to fetch bookings" });
+    return res.status(500).json({ message: "Failed to fetch booking" });
   }
 }
 
-export async function deleteBooking(req, res) {
+export async function cancelBooking(req, res) {
   try {
     const { id } = req.params;
     const { userId } = req.user;
@@ -136,11 +140,19 @@ export async function deleteBooking(req, res) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    await booking.deleteOne();
+    if (booking.status === "cancelled") {
+      return res.status(409).json({ message: "Booking is already cancelled" });
+    }
 
-    return res.status(200).json({ message: "Booking deleted successfully" });
+    booking.status = "cancelled";
+
+    await booking.save();
+
+    return res
+      .status(200)
+      .json({ message: "Booking cancelled successfully", booking });
   } catch (err) {
-    console.error("deleteBooking error:", err);
-    return res.status(500).json({ message: "Failed to delete booking" });
+    console.error("cancelBooking error:", err);
+    return res.status(500).json({ message: "Failed to cancel booking" });
   }
 }

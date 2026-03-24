@@ -38,6 +38,11 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["active", "cancelled"],
+      default: "active",
+    },
   },
   { timestamps: true },
 );
