@@ -1,5 +1,6 @@
 import Booking from "../models/Booking.js";
 import Place from "../models/Place.js";
+import mongoose from "mongoose";
 
 export async function createBooking(req, res) {
   try {
@@ -113,5 +114,33 @@ export async function getBookingById(req, res) {
     return res.json(booking);
   } catch (err) {
     return res.status(500).json({ message: "Failed to fetch bookings" });
+  }
+}
+
+export async function deleteBooking(req, res) {
+  try {
+    const { id } = req.params;
+    const { userId } = req.user;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid booking id" });
+    }
+
+    const booking = await Booking.findById(id);
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    if (booking.user.toString() !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    await booking.deleteOne();
+
+    return res.status(200).json({ message: "Booking deleted successfully" });
+  } catch (err) {
+    console.error("deleteBooking error:", err);
+    return res.status(500).json({ message: "Failed to delete booking" });
   }
 }
