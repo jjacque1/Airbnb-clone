@@ -57,9 +57,9 @@ export async function createBooking(req, res) {
     });
 
     if (existingBooking) {
-      return res
-        .status(400)
-        .json({ message: "This place is already for the selected dates" });
+      return res.status(400).json({
+        message: "This place is already booked for the selected dates",
+      });
     }
 
     const newBooking = await Booking.create({
@@ -89,6 +89,28 @@ export async function getBookings(req, res) {
     const bookings = await Booking.find({ user: userId }).populate("place");
 
     return res.json(bookings);
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to fetch bookings" });
+  }
+}
+
+export async function getBookingById(req, res) {
+  try {
+    const { id } = req.params;
+
+    const { userId } = req.user;
+
+    const booking = await Booking.findById(id).populate("place");
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    if (booking.user.toString() !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    return res.json(booking);
   } catch (err) {
     return res.status(500).json({ message: "Failed to fetch bookings" });
   }
