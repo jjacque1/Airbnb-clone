@@ -4,12 +4,12 @@ import {
   getProfile,
   loginUser,
   logoutUser,
-  registersUser,
+  registerUser,
 } from "../controllers/authController.js";
 
 const router = express.Router();
 
-router.post("/register", registersUser);
+router.post("/register", registerUser);
 
 router.post("/login", loginUser);
 router.get("/profile", getProfile);

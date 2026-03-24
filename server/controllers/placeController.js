@@ -52,9 +52,6 @@ export async function createPlace(req, res) {
       place: newPlace,
     });
   } catch (err) {
-    if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Invalid or expired token" });
-    }
     return res.status(500).json({ message: "Server error" });
   }
 }
@@ -63,11 +60,14 @@ export async function getUserPlaces(req, res) {
   try {
     const { userId } = req.user;
 
-    const places = await Place.find({ owner: userId });
+    const places = await Place.find({ owner: userId }).populate(
+      "owner",
+      "fullName email",
+    );
 
     return res.status(200).json({ places });
   } catch (err) {
-    return res.status(500).json({ message: "Invalid or expired token" });
+    return res.status(500).json({ message: "Failed to fetch user places" });
   }
 }
 
@@ -276,6 +276,6 @@ export async function patchPlace(req, res) {
       .status(200)
       .json({ message: "Place patched successfully", place });
   } catch (err) {
-    return res.status(500).json({ message: "Server errror" });
+    return res.status(500).json({ message: "Server error" });
   }
 }

@@ -2,14 +2,14 @@ import bcrypt from "bcrypt";
 import User from "../models/User.js";
 import signToken from "../utils/jwt.js";
 
-export async function registersUser(req, res) {
+export async function registerUser(req, res) {
   try {
     const { email, password, fullName } = req.body;
 
     if (!email || !password || !fullName) {
       return res
         .status(400)
-        .json({ message: "email, password, fullname are required" });
+        .json({ message: "email, password, and fullName are required" });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -21,7 +21,6 @@ export async function registersUser(req, res) {
     }
 
     const saltRounds = 10;
-
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     const user = await User.create({
@@ -85,9 +84,16 @@ export async function loginUser(req, res) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(200).json({ message: "Login successful" });
+    return res.status(200).json({
+      message: "Login successful",
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+      },
+    });
   } catch (err) {
-    console.error("Deatiled login error:", err);
+    console.error("Detailed login error:", err);
     return res.status(500).json({ message: "Server error" });
   }
 }
@@ -110,9 +116,6 @@ export async function getProfile(req, res) {
       },
     });
   } catch (err) {
-    if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Invalid or expired token" });
-    }
     return res.status(500).json({ message: "Server error" });
   }
 }
