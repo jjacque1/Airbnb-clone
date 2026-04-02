@@ -4,15 +4,17 @@ import {
   getProfile,
   loginUser,
   logoutUser,
-  registerUser,
+  registerUser
 } from "../controllers/authController.js";
+
+import { requireAuth } from "../middleware/requireAuth.js"
 
 const router = express.Router();
 
 router.post("/register", registerUser);
 
 router.post("/login", loginUser);
-router.get("/profile", getProfile);
+router.get("/profile", requireAuth, getProfile);
 
 router.post("/logout", logoutUser);
 

@@ -67,6 +67,7 @@ export async function getUserPlaces(req, res) {
 
     return res.status(200).json({ places });
   } catch (err) {
+    console.error(err)
     return res.status(500).json({ message: "Failed to fetch user places" });
   }
 }
