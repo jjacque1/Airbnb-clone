@@ -1,16 +1,96 @@
-# React + Vite
+# Airbnb Clone – Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+This is the frontend for a full-stack Airbnb clone application built using React and Vite. The application connects to a custom Node.js/Express backend and provides a user interface for authentication, property listings, and bookings.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This project is being built step-by-step with a focus on deeply understanding real-world frontend architecture, React fundamentals, and full-stack integration.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+* React (Vite)
+* React Router DOM
+* Axios
+* CSS
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Project Structure
+
+```
+src/
+  components/
+    Layout.jsx
+    Header.jsx
+  pages/
+    IndexPage.jsx
+    LoginPage.jsx
+    RegisterPage.jsx
+    ProfilePage.jsx
+    PlacesPage.jsx
+    PlaceFormPage.jsx
+    PlacePage.jsx
+    BookingsPage.jsx
+  App.jsx
+  main.jsx
+  index.css
+```
+
+---
+
+## Current Status
+
+Frontend setup has been initialized. Routing, layout, and core pages are being built progressively.
+
+---
+
+## Goals
+
+* Build a production-style frontend architecture
+* Integrate with backend authentication and APIs
+* Implement real-world UI patterns and data flow
+
+---
+
+## How to Run
+
+```
+cd client
+npm install
+npm run dev
+```
+
+---
+
+## Next Steps
+
+* Set up routing with React Router
+* Create page components
+* Build shared layout and navigation
+* Connect frontend to backend API
+
+```
+```
+## Current Progress
+
+The frontend foundation has been set up with React Router and a shared layout architecture.
+
+### Completed so far
+
+* Vite React frontend initialized
+* React Router installed and configured
+* Base route structure created
+* Shared `Layout` component added
+* `Header` component added
+* `Footer` component added
+* Initial pages created:
+
+  * Home page
+  * Login page
+  * Logout page
+
+### Architecture Notes
+
+The app now uses a shared layout pattern with `Outlet`, which allows the header and footer to remain persistent while page content changes based on the route.
