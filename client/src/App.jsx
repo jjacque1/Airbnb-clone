@@ -1,17 +1,6 @@
-import { Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import LogoutPage from "./pages/LogoutPage";
+import "./App.css";
+import AppRoutes from "./routes/AppRoutes";
 
 export default function App() {
-  return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/logout" element={<LogoutPage/>}/>
-      </Route>
-    </Routes>
-  );
+  return <AppRoutes />;
 }
